@@ -8,6 +8,9 @@ export default defineConfig({
   plugins: [tailwindcss(), hydrogen(), oxygen(), reactRouter()],
   resolve: {
     tsconfigPaths: true,
+    alias: {
+      '~': '/app',
+    },
   },
   build: {
     // Allow a strict Content-Security-Policy

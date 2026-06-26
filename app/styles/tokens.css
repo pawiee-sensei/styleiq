@@ -1,0 +1,16 @@
+:root {
+  /* Colors */
+  --gold:        #AB884F;
+  --gold-light:  #C9A46B;
+  --gold-dark:   #7A5F2A;
+  --cream:       #F1EDEA;
+  --cream-card:  #FBF3EF;
+  --cream-2:     #EEE8DF;
+  --dark:        #0D0B09;
+  --dark-2:      #1A1208;
+  --brown:       #30241F;
+
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans:  'Inter', sans-serif;
+}

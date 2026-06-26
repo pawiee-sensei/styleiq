@@ -1,3 +1,20 @@
+@import './tokens.css';
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--cream);
+  font-family: var(--font-sans);
+  color: var(--brown);
+  overflow-x: hidden;
+}
+
 :root {
   --aside-width: 400px;
   --cart-aside-summary-height-with-discount: 300px;
@@ -642,4 +659,159 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+/* ── HEADER ── */
+.site-header {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 48px;
+  z-index: 100;
+}
+
+.header-logo {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 4px;
+}
+
+.header-nav {
+  display: flex;
+  gap: 36px;
+}
+
+.header-nav a {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(171,136,79,0.8);
+  text-decoration: none;
+  letter-spacing: 1.5px;
+  transition: color 0.3s;
+}
+
+.header-nav a:hover { color: var(--gold); }
+
+.header-icons {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+
+.header-icons a { color: var(--gold); }
+
+.header-icons svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--gold);
+  display: block;
+  transition: opacity 0.3s;
+}
+
+.header-icons svg:hover { opacity: 0.6; }
+
+/* ── HERO ── */
+.hero {
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1208 0%, #2d1f0e 40%, #0d0b09 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(171,136,79,0.12) 0%, transparent 65%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding-left: 80px;
+  max-width: 700px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: 80px;
+  font-weight: 300;
+  line-height: 1.0;
+  color: var(--cream);
+}
+
+.hero-gold { color: var(--gold); }
+
+.hero-sub {
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(241,237,234,0.6);
+  line-height: 1.8;
+  max-width: 320px;
+  margin: 28px 0 44px;
+  letter-spacing: 0.5px;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: #fff;
+  border: 1.5px solid var(--gold);
+  padding: 13px 32px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-primary:hover { background: transparent; color: var(--gold); }
+
+.btn-outline {
+  background: transparent;
+  color: rgba(241,237,234,0.7);
+  border: 1.5px solid rgba(171,136,79,0.4);
+  padding: 13px 32px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+.hero-line {
+  position: absolute;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 200px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  opacity: 0.4;
 }

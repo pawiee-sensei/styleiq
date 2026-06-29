@@ -17,12 +17,23 @@ export default async function handleRequest(
   reactRouterContext,
   context,
 ) {
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    shop: {
-      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
-    },
-  });
+const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+  shop: {
+    checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
+    storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+  },
+  styleSrc: [
+    "'self'",
+    "'unsafe-inline'",
+    'https://cdn.shopify.com',
+    'https://fonts.googleapis.com',
+  ],
+  fontSrc: [
+    "'self'",
+    'https://fonts.gstatic.com',
+    'https://fonts.googleapis.com',
+  ],
+});
 
   const body = await renderToReadableStream(
     <NonceProvider>

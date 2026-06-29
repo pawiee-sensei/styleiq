@@ -9,16 +9,19 @@
 
 .product-gallery-main {
   width: 100%;
-  aspect-ratio: 3/4;
+  height: 600px;
   overflow: hidden;
   border-radius: 4px;
-  background: var(--dark-2);
+  background: var(--cream-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-gallery-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.5s ease;
 }
 
@@ -234,4 +237,30 @@
   color: rgba(48,36,31,0.3);
   cursor: not-allowed;
   letter-spacing: 3px;
+}
+
+/* ── PRODUCT PAGE LAYOUT ── */
+.product-page {
+  padding: 120px 48px 60px;
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.product-page-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.product-page-left {
+  position: relative;
+}
+
+.product-page-right {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-top: 20px;
 }

@@ -1,14 +1,26 @@
 :root {
-  /* Colors */
-  --gold:        #AB884F;
-  --gold-light:  #C9A46B;
-  --gold-dark:   #7A5F2A;
-  --cream:       #F1EDEA;
-  --cream-card:  #FBF3EF;
-  --cream-2:     #EEE8DF;
-  --dark:        #0D0B09;
-  --dark-2:      #1A1208;
-  --brown:       #30241F;
+  /* Backgrounds */
+  --cream:       #F6F1EC;
+  --cream-card:  #FBF8F5;
+  --cream-2:     #EFE9E0;
+
+  /* Gold */
+  --gold:        #AE946E;
+  --gold-light:  #CEB385;
+  --gold-dark:   #785F3C;
+
+  /* Text */
+  --brown:       #3E2F20;
+  --body:        #6D5A44;
+  --muted:       #9B8872;
+
+  /* Dark */
+  --dark:        #19140E;
+  --dark-2:      #2A1F14;
+
+  /* Borders */
+  --border:      #E9DED0;
+  --border-2:    #E2D5C4;
 
   /* Typography */
   --font-serif: 'Cormorant Garamond', serif;

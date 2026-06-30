@@ -1,172 +1,178 @@
-import {redirect, useLoaderData} from 'react-router';
-import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
-import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
-import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {ProductItem} from '~/components/ProductItem';
+import {useLoaderData, Link} from 'react-router';
+import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
+import {useState} from 'react';
 
-/**
- * @type {Route.MetaFunction}
- */
-export const meta = ({data}) => {
-  return [{title: `Hydrogen | ${data?.collection.title ?? ''} Collection`}];
-};
-
-/**
- * @param {Route.LoaderArgs} args
- */
-export async function loader(args) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
-
-  // Await the critical data required to render initial state of the page
-  const criticalData = await loadCriticalData(args);
-
-  return {...deferredData, ...criticalData};
-}
-
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- * @param {Route.LoaderArgs}
- */
-async function loadCriticalData({context, params, request}) {
+export async function loader({params, request, context}) {
   const {handle} = params;
-  const {storefront} = context;
-  const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8,
+  const paginationVariables = getPaginationVariables(request, {pageBy: 12});
+
+  const {collection} = await context.storefront.query(COLLECTION_QUERY, {
+    variables: {handle, ...paginationVariables},
   });
 
-  if (!handle) {
-    throw redirect('/collections');
-  }
-
-  const [{collection}] = await Promise.all([
-    storefront.query(COLLECTION_QUERY, {
-      variables: {handle, ...paginationVariables},
-      // Add other queries here, so that they are loaded in parallel
-    }),
-  ]);
-
   if (!collection) {
-    throw new Response(`Collection ${handle} not found`, {
-      status: 404,
-    });
+    throw new Response('Collection not found', {status: 404});
   }
 
-  // The API handle might be localized, so redirect to the localized handle
-  redirectIfHandleIsLocalized(request, {handle, data: collection});
-
-  return {
-    collection,
-  };
+  return {collection};
 }
 
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- * @param {Route.LoaderArgs}
- */
-function loadDeferredData({context}) {
-  return {};
-}
-
-export default function Collection() {
-  /** @type {LoaderReturnData} */
+export default function CollectionPage() {
   const {collection} = useLoaderData();
+  const [activeFilter, setActiveFilter] = useState('ALL');
+
+  const filters = ['ALL', 'NEW IN', 'BEST SELLERS', 'SALE'];
 
   return (
-    <div className="collection">
-      <h1>{collection.title}</h1>
-      <p className="collection-description">{collection.description}</p>
-      <PaginatedResourceSection
-        connection={collection.products}
-        resourcesClassName="products-grid"
-      >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
-          />
+    <div className="col-page">
+
+      {/* SIDEBAR */}
+      <aside className="col-sidebar">
+        <div className="col-sidebar-brand">STYLEIQ</div>
+
+        <div className="col-sidebar-section">
+          <span className="col-sidebar-label">COLLECTION</span>
+          <h2 className="col-sidebar-title">
+            {collection.title.toUpperCase()}
+          </h2>
+          {collection.description && (
+            <p className="col-sidebar-desc">{collection.description}</p>
+          )}
+        </div>
+
+        <div className="col-sidebar-section">
+          <span className="col-sidebar-label">FILTER</span>
+          <div className="col-filters">
+            {filters.map((f) => (
+              <button
+                key={f}
+                className={`col-filter-btn ${activeFilter === f ? 'active' : ''}`}
+                onClick={() => setActiveFilter(f)}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-sidebar-section">
+          <span className="col-sidebar-label">CATEGORY</span>
+          <div className="col-filters">
+            {['TOPS', 'BOTTOMS', 'OUTERWEAR', 'ACCESSORIES'].map((c) => (
+              <button key={c} className="col-filter-btn">{c}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-sidebar-section">
+          <span className="col-sidebar-label">PRICE</span>
+          <div className="col-filters">
+            {['UNDER ₱5K', '₱5K - ₱10K', '₱10K - ₱20K', 'OVER ₱20K'].map((p) => (
+              <button key={p} className="col-filter-btn">{p}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-sidebar-deco">
+          {collection.title.toUpperCase()}
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <main className="col-main">
+
+        {/* TOP BAR */}
+        <div className="col-topbar">
+          <span className="col-topbar-count">
+            {collection.products.nodes.length} PIECES
+          </span>
+          <div className="col-topbar-sort">
+            <span>SORT BY</span>
+            <span className="col-topbar-sort-active">FEATURED ↓</span>
+          </div>
+        </div>
+
+        {/* GRID */}
+        <div className="col-grid">
+          {collection.products.nodes.map((product, i) => (
+            <Link
+              key={product.id}
+              to={`/products/${product.handle}`}
+              className={`col-card ${i === 0 ? 'col-card-featured' : ''}`}
+            >
+              <div className="col-card-img">
+                {product.featuredImage && (
+                  <Image
+                    data={product.featuredImage}
+                    aspectRatio="3/4"
+                    sizes="(min-width: 768px) 25vw, 50vw"
+                    className="col-card-photo"
+                  />
+                )}
+                <div className="col-card-overlay">
+                  <span className="col-card-cta">SHOP NOW</span>
+                </div>
+                {i === 0 && (
+                  <span className="col-card-badge">NEW</span>
+                )}
+              </div>
+              <div className="col-card-info">
+                <h3 className="col-card-name">{product.title}</h3>
+                <Money
+                  className="col-card-price"
+                  data={product.priceRange.minVariantPrice}
+                />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* LOAD MORE */}
+        {collection.products.pageInfo.hasNextPage && (
+          <div className="col-load-more">
+            <Link
+              to={`?cursor=${collection.products.pageInfo.endCursor}`}
+              className="col-load-btn"
+            >
+              LOAD MORE
+            </Link>
+          </div>
         )}
-      </PaginatedResourceSection>
-      <Analytics.CollectionView
-        data={{
-          collection: {
-            id: collection.id,
-            handle: collection.handle,
-          },
-        }}
-      />
+      </main>
     </div>
   );
 }
 
-const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-  }
-`;
-
-// NOTE: https://shopify.dev/docs/api/storefront/2022-04/objects/collection
 const COLLECTION_QUERY = `#graphql
-  ${PRODUCT_ITEM_FRAGMENT}
-  query Collection(
-    $handle: String!
-    $country: CountryCode
-    $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
-  ) @inContext(country: $country, language: $language) {
+  query Collection($handle: String!, $first: Int, $after: String) {
     collection(handle: $handle) {
       id
-      handle
       title
       description
-      products(
-        first: $first,
-        last: $last,
-        before: $startCursor,
-        after: $endCursor
-      ) {
+      products(first: $first, after: $after) {
         nodes {
-          ...ProductItem
+          id
+          title
+          handle
+          featuredImage {
+            id
+            url
+            altText
+            width
+            height
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
         }
         pageInfo {
-          hasPreviousPage
           hasNextPage
           endCursor
-          startCursor
         }
       }
     }
   }
 `;
-
-/** @typedef {import('./+types/collections.$handle').Route} Route */
-/** @typedef {import('storefrontapi.generated').ProductItemFragment} ProductItemFragment */
-/** @typedef {ReturnType<typeof useLoaderData<typeof loader>>} LoaderReturnData */

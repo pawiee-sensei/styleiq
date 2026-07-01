@@ -1,6 +1,9 @@
-import {Link} from 'react-router';
+import {Link, useLocation} from 'react-router';
 
 export function VariantSelector({options, variants}) {
+  const {search} = useLocation();
+  const params = new URLSearchParams(search);
+
   return (
     <div className="variant-selector">
       {options.map((option) => (
@@ -10,21 +13,24 @@ export function VariantSelector({options, variants}) {
           </label>
           <div className="variant-options">
             {option.optionValues.map((value) => {
-              const variant = variants.find((v) =>
-                v.selectedOptions.some(
-                  (o) => o.name === option.name && o.value === value.name,
-                ),
-              );
-              const isAvailable = variant?.availableForSale ?? false;
+              const newParams = new URLSearchParams(params);
+              newParams.set(option.name, value.name);
+
+              const isSelected =
+                params.get(option.name) === value.name ||
+                (!params.get(option.name) &&
+                  option.optionValues[0].name === value.name);
+
               const isColor = option.name.toLowerCase() === 'color';
 
               return (
                 <Link
                   key={value.name}
-                  to={value.selected ? '#' : `?${value.name}`}
+                  to={`?${newParams.toString()}`}
+                  preventScrollReset
+                  replace
                   className={`variant-option
-                    ${value.selected ? 'selected' : ''}
-                    ${!isAvailable ? 'unavailable' : ''}
+                    ${isSelected ? 'selected' : ''}
                     ${isColor ? 'color-swatch' : 'size-option'}
                   `}
                   style={

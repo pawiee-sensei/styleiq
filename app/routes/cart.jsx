@@ -1,126 +1,146 @@
-import {useLoaderData, data} from 'react-router';
-import {CartForm} from '@shopify/hydrogen';
-import {CartMain} from '~/components/CartMain';
+import {useLoaderData, Link} from 'react-router';
+import {CartForm, Money} from '@shopify/hydrogen';
+import {CartItem} from '../components/cart/CartItem';
 
-/**
- * @type {Route.MetaFunction}
- */
-export const meta = () => {
-  return [{title: `Hydrogen | Cart`}];
-};
+export async function loader({context}) {
+  const cart = await context.cart.get();
+  return {cart};
+}
 
-/**
- * @type {HeadersFunction}
- */
-export const headers = ({actionHeaders}) => actionHeaders;
-
-/**
- * @param {Route.ActionArgs}
- */
 export async function action({request, context}) {
   const {cart} = context;
-
   const formData = await request.formData();
-
   const {action, inputs} = CartForm.getFormInput(formData);
 
-  if (!action) {
-    throw new Error('No action provided');
-  }
-
-  let status = 200;
   let result;
-
-  switch (action) {
-    case CartForm.ACTIONS.LinesAdd:
-      result = await cart.addLines(inputs.lines);
-      break;
-    case CartForm.ACTIONS.LinesUpdate:
-      result = await cart.updateLines(inputs.lines);
-      break;
-    case CartForm.ACTIONS.LinesRemove:
-      result = await cart.removeLines(inputs.lineIds);
-      break;
-    case CartForm.ACTIONS.DiscountCodesUpdate: {
-      const formDiscountCode = inputs.discountCode;
-
-      // User inputted discount code
-      const discountCodes = formDiscountCode ? [formDiscountCode] : [];
-
-      // Combine discount codes already applied on cart
-      discountCodes.push(...inputs.discountCodes);
-
-      result = await cart.updateDiscountCodes(discountCodes);
-      break;
-    }
-    case CartForm.ACTIONS.GiftCardCodesAdd: {
-      const formGiftCardCode = inputs.giftCardCode;
-
-      const giftCardCodes = formGiftCardCode ? [formGiftCardCode] : [];
-
-      result = await cart.addGiftCardCodes(giftCardCodes);
-      break;
-    }
-    case CartForm.ACTIONS.GiftCardCodesRemove: {
-      const appliedGiftCardIds = inputs.giftCardCodes;
-      result = await cart.removeGiftCardCodes(appliedGiftCardIds);
-      break;
-    }
-    case CartForm.ACTIONS.BuyerIdentityUpdate: {
-      result = await cart.updateBuyerIdentity({
-        ...inputs.buyerIdentity,
-      });
-      break;
-    }
-    default:
-      throw new Error(`${action} cart action is not defined`);
+  if (action === CartForm.ACTIONS.LinesAdd) {
+    result = await cart.addLines(inputs.lines);
+  } else if (action === CartForm.ACTIONS.LinesUpdate) {
+    result = await cart.updateLines(inputs.lines);
+  } else if (action === CartForm.ACTIONS.LinesRemove) {
+    result = await cart.removeLines(inputs.lineIds);
+  } else if (action === CartForm.ACTIONS.DiscountCodesUpdate) {
+    result = await cart.updateDiscountCodes(inputs.discountCodes);
   }
 
-  const cartId = result?.cart?.id;
-  const headers = cartId ? cart.setCartId(result.cart.id) : new Headers();
-  const {cart: cartResult, errors, warnings} = result;
+  const headers = cart.setCartId(result.cart.id);
+  return Response.json(result, {headers});
+}
 
-  const redirectTo = formData.get('redirectTo') ?? null;
-  if (typeof redirectTo === 'string') {
-    status = 303;
-    headers.set('Location', redirectTo);
+export default function CartPage() {
+  const {cart} = useLoaderData();
+
+  if (!cart || cart.totalQuantity === 0) {
+    return (
+      <div className="cart-empty">
+        <div className="cart-empty-inner">
+          <span className="cart-empty-eyebrow">YOUR BAG</span>
+          <h1 className="cart-empty-title">YOUR CART<br />IS EMPTY</h1>
+          <p className="cart-empty-desc">
+            Discover our latest collections and add your favorite pieces.
+          </p>
+          <Link to="/collections/featured" className="btn-primary">
+            SHOP NOW
+          </Link>
+        </div>
+      </div>
+    );
   }
-
-  return data(
-    {
-      cart: cartResult,
-      errors,
-      warnings,
-      analytics: {
-        cartId,
-      },
-    },
-    {status, headers},
-  );
-}
-
-/**
- * @param {Route.LoaderArgs}
- */
-export async function loader({context}) {
-  const {cart} = context;
-  return await cart.get();
-}
-
-export default function Cart() {
-  /** @type {LoaderReturnData} */
-  const cart = useLoaderData();
 
   return (
-    <div className="cart">
-      <h1>Cart</h1>
-      <CartMain layout="page" cart={cart} />
+    <div className="cart-page">
+
+      {/* HEADER */}
+      <div className="cart-page-header">
+        <span className="cart-page-eyebrow">YOUR BAG</span>
+        <h1 className="cart-page-title">SHOPPING CART</h1>
+        <span className="cart-page-count">
+          {cart.totalQuantity} {cart.totalQuantity === 1 ? 'ITEM' : 'ITEMS'}
+        </span>
+      </div>
+
+      <div className="cart-page-body">
+
+        {/* LEFT — LINE ITEMS */}
+        <div className="cart-page-left">
+          <div className="cart-items-header">
+            <span>PRODUCT</span>
+            <span>DETAILS</span>
+            <span>TOTAL</span>
+          </div>
+          <div className="cart-items">
+            {cart.lines.nodes.map((line) => (
+              <CartItem key={line.id} line={line} />
+            ))}
+          </div>
+          <Link to="/collections/featured" className="cart-continue">
+            ← CONTINUE SHOPPING
+          </Link>
+        </div>
+
+        {/* RIGHT — SUMMARY */}
+        <div className="cart-page-right">
+          <div className="cart-summary">
+            <h2 className="cart-summary-title">ORDER SUMMARY</h2>
+
+            <div className="cart-summary-row">
+              <span>SUBTOTAL</span>
+              <Money data={cart.cost.subtotalAmount} />
+            </div>
+
+            <div className="cart-summary-row">
+              <span>SHIPPING</span>
+              <span>Calculated at checkout</span>
+            </div>
+
+            {cart.cost.totalTaxAmount && (
+              <div className="cart-summary-row">
+                <span>TAX</span>
+                <Money data={cart.cost.totalTaxAmount} />
+              </div>
+            )}
+
+            <div className="cart-summary-divider" />
+
+            <div className="cart-summary-total">
+              <span>TOTAL</span>
+              <Money data={cart.cost.totalAmount} />
+            </div>
+
+            {/* DISCOUNT CODE */}
+            <CartForm
+              route="/cart"
+              action={CartForm.ACTIONS.DiscountCodesUpdate}
+            >
+              <div className="cart-discount">
+                <input
+                  type="text"
+                  name="discountCode"
+                  placeholder="PROMO CODE"
+                  className="cart-discount-input"
+                />
+                <button type="submit" className="cart-discount-btn">
+                  APPLY
+                </button>
+              </div>
+            </CartForm>
+
+            <a
+              href={cart.checkoutUrl}
+              className="cart-checkout-btn"
+            >
+              PROCEED TO CHECKOUT
+            </a>
+
+            <div className="cart-summary-trust">
+              <span>🔒 SECURE CHECKOUT</span>
+              <span>FREE RETURNS</span>
+              <span>AUTHENTIC PIECES</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
-
-/** @typedef {import('react-router').HeadersFunction} HeadersFunction */
-/** @typedef {import('./+types/cart').Route} Route */
-/** @typedef {import('@shopify/hydrogen').CartQueryDataReturn} CartQueryDataReturn */
-/** @typedef {ReturnType<typeof useLoaderData<typeof loader>>} LoaderReturnData */
-/** @typedef {ReturnType<typeof useActionData<typeof action>>} ActionReturnData */

@@ -264,3 +264,62 @@
   gap: 32px;
   padding-top: 20px;
 }
+
+/* ── ADD TO CART TOAST ── */
+.add-to-cart-wrap {
+  position: relative;
+}
+
+.add-to-cart-btn.added {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+.add-to-cart-toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: var(--dark);
+  border: 0.5px solid rgba(171,136,79,0.3);
+  border-radius: 6px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 999;
+  animation: slideUp 0.3s ease;
+  min-width: 260px;
+}
+
+.add-to-cart-toast span {
+  width: 32px;
+  height: 32px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.toast-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cream);
+  letter-spacing: 1px;
+}
+
+.toast-sub {
+  font-size: 11px;
+  color: rgba(241,237,234,0.5);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

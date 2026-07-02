@@ -1,10 +1,11 @@
-import {Link, NavLink, useRouteLoaderData} from 'react-router';
+import {Suspense} from 'react';
+import {Link, NavLink, Await, useRouteLoaderData} from 'react-router';
 import {useOptimisticCart} from '@shopify/hydrogen';
 
 export function Header() {
   const data = useRouteLoaderData('root');
   const cart = useOptimisticCart(data?.cart);
-  const totalQuantity = cart?.totalQuantity || 0;
+  const totalQuantity = cart?.totalQuantity ?? 0;
 
   return (
     <header className="site-header">
@@ -39,9 +40,16 @@ export function Header() {
             <line x1="3" y1="6" x2="21" y2="6"/>
             <path d="M16 10a4 4 0 01-8 0"/>
           </svg>
-          {totalQuantity > 0 && (
-            <span className="header-cart-badge">{totalQuantity}</span>
-          )}
+          <Suspense fallback={null}>
+            <Await resolve={data?.cart}>
+              {(resolvedCart) => {
+                const count = resolvedCart?.totalQuantity ?? 0;
+                return count > 0 ? (
+                  <span className="header-cart-badge">{count}</span>
+                ) : null;
+              }}
+            </Await>
+          </Suspense>
         </Link>
       </div>
     </header>

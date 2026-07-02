@@ -4,6 +4,7 @@ import {ProductGallery} from '../components/product/ProductGallery';
 import {ProductInfo} from '../components/product/ProductInfo';
 import {VariantSelector} from '../components/product/VariantSelector';
 import {AddToCart} from '../components/product/AddToCart';
+import {ScarcityEngine} from '../components/product/ScarcityEngine';
 
 export async function loader({params, request, context}) {
   const {handle} = params;
@@ -25,16 +26,24 @@ export default function ProductPage() {
   return (
     <div className="product-page">
       <div className="product-page-inner">
-        <div className="product-page-left">
-          <ProductGallery images={images} />
-        </div>
+          <div className="product-page-left">
+            <ProductGallery
+              images={images}
+              variants={product.variants.nodes}
+              scarcity={<ScarcityEngine stockCount={4} endHours={2} />}
+            />
+          </div>
         <div className="product-page-right">
           <ProductInfo product={product} selectedVariant={selectedVariant} />
           <VariantSelector
             options={product.options}
             variants={product.variants.nodes}
           />
-          <AddToCart selectedVariant={selectedVariant} />
+          <div className="scarcity-warning">
+              <div className="scarcity-warning-dot" />
+              <span className="scarcity-warning-text">ALMOST GONE — ONLY 4 REMAINING</span>
+            </div>
+            <AddToCart selectedVariant={selectedVariant} />
         </div>
       </div>
       <Analytics.ProductView
@@ -83,6 +92,11 @@ options {
           availableForSale
           price { amount currencyCode }
           selectedOptions { name value }
+          image {
+            id
+            url
+            altText
+          }
         }
       }
       images(first: 10) {

@@ -745,6 +745,9 @@ export type ProductQuery = {
             selectedOptions: Array<
               Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
             >;
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText'>
+            >;
           }
         >;
       };
@@ -1023,7 +1026,7 @@ interface GeneratedQueryTypes {
     return: PoliciesQuery;
     variables: PoliciesQueryVariables;
   };
-  '#graphql\n  query Product($handle: String!, $selectedOptions: [SelectedOptionInput!]!) {\n    product(handle: $handle) {\n      id\n      title\n      descriptionHtml\n      vendor\noptions {\n  name\n  optionValues {\n    name\n  }\n}\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions) {\n        id\n        availableForSale\n        price { amount currencyCode }\n        compareAtPrice { amount currencyCode }\n        title\n        selectedOptions { name value }\n      }\n      variants(first: 20) {\n        nodes {\n          id\n          availableForSale\n          price { amount currencyCode }\n          selectedOptions { name value }\n        }\n      }\n      images(first: 10) {\n        nodes {\n          id\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query Product($handle: String!, $selectedOptions: [SelectedOptionInput!]!) {\n    product(handle: $handle) {\n      id\n      title\n      descriptionHtml\n      vendor\noptions {\n  name\n  optionValues {\n    name\n  }\n}\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions) {\n        id\n        availableForSale\n        price { amount currencyCode }\n        compareAtPrice { amount currencyCode }\n        title\n        selectedOptions { name value }\n      }\n      variants(first: 20) {\n        nodes {\n          id\n          availableForSale\n          price { amount currencyCode }\n          selectedOptions { name value }\n          image {\n            id\n            url\n            altText\n          }\n        }\n      }\n      images(first: 10) {\n        nodes {\n          id\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n  }\n': {
     return: ProductQuery;
     variables: ProductQueryVariables;
   };
